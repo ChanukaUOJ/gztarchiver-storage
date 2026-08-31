@@ -27,12 +27,69 @@ jobs:
       - name: Install archiver package
         run: pip install git+https://github.com/ChanukaUOJ/gztarchiver.git@feat/source-v2
 
-      - name: Install playwright browsers
-        run: playwright install --with-deps chromium
-
       - name: Create config.yaml from secret
         run: |
           echo "${{ secrets.GZTARCHIVER_CONFIG }}" > config.yaml
+
+      - name: Retrieve Next action token from the website
+        run: |
+          python - <<EOF
+          import re
+          import requests
+          import yaml
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+
+          def resolve_token():
+              session = requests.Session()
+              session.headers.update({"User-Agent": "Mozilla/5.0"})
+
+              html = session.get("https://documents.gov.lk/web/extra_gazettes", timeout=15).text
+              chunks = set(re.findall(r"/_next/static/chunks/[^\s\"\'<>]+\.js", html))
+
+              def check_chunk(chunk_path):
+                  try:
+                      js = session.get("https://documents.gov.lk" + chunk_path, timeout=10).text
+                      # Target TableDataAction specifically
+                      m = re.search(r'createServerReference\)?\([\"\']([a-f0-9]{40,42})[\"\'][^)]*[\"\']TableDataAction[\"\']', js)
+                      if m:
+                          return m.group(1), chunk_path
+                  except Exception:
+                      pass
+                  return None
+
+              with ThreadPoolExecutor(max_workers=10) as executor:
+                  futures = [executor.submit(check_chunk, c) for c in chunks]
+                  for future in as_completed(futures):
+                      res = future.result()
+                      if res:
+                          token, chunk = res
+                          print(f"🎯 Found token in {chunk}: {token}")
+                          return token
+
+              return None
+
+          def main():
+              token = resolve_token()
+              if not token:
+                  print("❌ Failed to resolve next-action token.")
+                  exit(1)
+
+              print(f"🔑 Captured token: {token}")
+
+              # Inject into config.yaml
+              with open("config.yaml", "r") as f:
+                  cfg = yaml.safe_load(f)
+
+              cfg.setdefault("v2", {})["next_action_token"] = token
+
+              with open("config.yaml", "w") as f:
+                  yaml.safe_dump(cfg, f, default_flow_style=False)
+
+              print("✅ Successfully updated config.yaml!")
+
+          if __name__ == "__main__":
+              main()
+          EOF
 
       - name: Fetch new API token and update config
         env:
