@@ -1,6 +1,6 @@
 # Sri Lanka 🇱🇰 - Gazette Dataset
 
-Last Updated: 2026-01-15 20:23:26 +0530
+Last Updated: 2026-08-31 23:46:01 +0530
 
 **A daily archive of the Sri Lankan Government Gazette.**
 
@@ -8,26 +8,56 @@ Last Updated: 2026-01-15 20:23:26 +0530
 
 ## 📊 Archive Status Dashboard
 
-**Total Documents Archived:** 28095  
-**Unavailable Documents:** 1842  
-**Archived Date Range:** from 2015-01-01 to 2026-01-12
+**Total Documents Archived:** 28128
+**Unavailable Documents:** 0
+**Archived Date Range:** from 2015-01-01 to 2026-08-25
 
 **Summary of Documents Archived:**
 
 | Year | Archived Docs | Unavailable Docs |
 |------|---------------|-----------------|
-| 2015 | 2255 | 151 |
-| 2016 | 2344 | 225 |
-| 2017 | 2398 | 193 |
-| 2018 | 2682 | 126 |
-| 2019 | 2951 | 94 |
-| 2020 | 1950 | 76 |
-| 2021 | 2698 | 69 |
-| 2022 | 3050 | 141 |
-| 2023 | 2943 | 127 |
-| 2024 | 2506 | 105 |
-| 2025 | 2306 | 533 |
-| 2026 | 12 | 2 |
+| 2015 | 2255 | 0 |
+| 2016 | 2344 | 0 |
+| 2017 | 2398 | 0 |
+| 2018 | 2685 | 0 |
+| 2019 | 2951 | 0 |
+| 2020 | 1950 | 0 |
+| 2021 | 2698 | 0 |
+| 2022 | 3050 | 0 |
+| 2023 | 2943 | 0 |
+| 2024 | 2506 | 0 |
+| 2025 | 2333 | 0 |
+| 2026 | 15 | 0 |
+
+---
+
+## 📄 Document Usage Instructions
+
+### View Document Online
+
+1. Get the  from the metadata object
+2. Use this URL pattern to view on GitHub:
+
+
+
+**Example:**
+
+
+### Download Document
+
+1. Get the  from the metadata object
+2. Use this URL pattern to download the raw file:
+
+#### Option 1
+
+
+**Example:**
+
+
+#### Option 2
+
+
+**Example:**
 
 ---
 
