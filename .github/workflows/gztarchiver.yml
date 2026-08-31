@@ -25,7 +25,7 @@ jobs:
           python-version: "3.10"
 
       - name: Install archiver package
-        run: pip install git+https://github.com/ChanukaUOJ/gztarchiver.git@feat/source-v2-without-playwright
+        run: pip install --force-reinstall --no-cache-dir git+https://github.com/ChanukaUOJ/gztarchiver.git@feat/source-v2-without-playwright
 
       - name: Create config.yaml from secret
         run: |
@@ -160,146 +160,146 @@ jobs:
           rm -rf ~/.cache/pip
           du -sh .
 
-      # - name: Commit and push changes
-      #   env:
-      #     TZ: Asia/Colombo
-      #   run: |
-      #     git config user.name "gzt-archiver-bot[bot]"
-      #     git config user.email "gzt-archiver-bot[bot]@users.noreply.github.com"
-      #     git add doc-archive
+      - name: Commit and push changes
+        env:
+          TZ: Asia/Colombo
+        run: |
+          git config user.name "gzt-archiver-bot[bot]"
+          git config user.email "gzt-archiver-bot[bot]@users.noreply.github.com"
+          git add doc-archive
 
-      #     COMMIT_MSG="🔄 Auto-update archive - $(date '+%Y-%m-%d') - $(date '+%H:%M:%S %Z')"
+          COMMIT_MSG="🔄 Auto-update archive - $(date '+%Y-%m-%d') - $(date '+%H:%M:%S %Z')"
 
-      #     git commit -m "$COMMIT_MSG" || echo "No changes to commit"
-      #     git push origin main
+          git commit -m "$COMMIT_MSG" || echo "No changes to commit"
+          git push origin main
 
-      # - name: Update README with status
-      #   env:
-      #     TZ: Asia/Colombo
-      #   run: |
-      #     TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S %Z')
+      - name: Update README with status
+        env:
+          TZ: Asia/Colombo
+        run: |
+          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S %Z')
 
-      #     TOTAL_DOCS=$(find doc-archive -type f -name "*.pdf" | wc -l)
-      #     TOTAL_UNAVAILABLE=$(find doc-archive -type f -name "unavailable.txt" | wc -l)
+          TOTAL_DOCS=$(find doc-archive -type f -name "*.pdf" | wc -l)
+          TOTAL_UNAVAILABLE=$(find doc-archive -type f -name "unavailable.txt" | wc -l)
 
-      #     if [ $TOTAL_DOCS -gt 0 ]; then
-      #       ALL_DATES=$(find doc-archive -type f \( -name "*.pdf" -o -name "unavailable.txt" \) | \
-      #         grep -oE '[0-9]{4}/[0-9]{2}/[0-9]{2}' | \
-      #         sed 's|/|-|g' | \
-      #         sort -u)
+          if [ $TOTAL_DOCS -gt 0 ]; then
+            ALL_DATES=$(find doc-archive -type f \( -name "*.pdf" -o -name "unavailable.txt" \) | \
+              grep -oE '[0-9]{4}/[0-9]{2}/[0-9]{2}' | \
+              sed 's|/|-|g' | \
+              sort -u)
 
-      #       if [ -n "$ALL_DATES" ]; then
-      #         START_DATE=$(echo "$ALL_DATES" | head -1)
-      #         END_DATE=$(echo "$ALL_DATES" | tail -1)
-      #         DATE_RANGE="from $START_DATE to $END_DATE"
-      #       else
-      #         DATE_RANGE="date range unavailable"
-      #       fi
-      #     else
-      #       DATE_RANGE=""
-      #     fi
+            if [ -n "$ALL_DATES" ]; then
+              START_DATE=$(echo "$ALL_DATES" | head -1)
+              END_DATE=$(echo "$ALL_DATES" | tail -1)
+              DATE_RANGE="from $START_DATE to $END_DATE"
+            else
+              DATE_RANGE="date range unavailable"
+            fi
+          else
+            DATE_RANGE=""
+          fi
 
-      #     SUMMARY_TABLE=$(
-      #       find doc-archive -type f -name "*.pdf" | awk -F'/' '{print $2}' | sort | uniq -c > /tmp/archived_counts.txt
-      #       find doc-archive -type f -name "unavailable.txt" | awk -F'/' '{print $2}' | sort | uniq -c > /tmp/unavailable_counts.txt
+          SUMMARY_TABLE=$(
+            find doc-archive -type f -name "*.pdf" | awk -F'/' '{print $2}' | sort | uniq -c > /tmp/archived_counts.txt
+            find doc-archive -type f -name "unavailable.txt" | awk -F'/' '{print $2}' | sort | uniq -c > /tmp/unavailable_counts.txt
 
-      #       awk '
-      #       BEGIN {
-      #           while ((getline line < "/tmp/archived_counts.txt") > 0) {
-      #               split(line, a); archived[a[2]] = a[1]
-      #           }
-      #           while ((getline line < "/tmp/unavailable_counts.txt") > 0) {
-      #               split(line, u); unavailable[u[2]] = u[1]
-      #           }
-      #           close("/tmp/archived_counts.txt")
-      #           close("/tmp/unavailable_counts.txt")
+            awk '
+            BEGIN {
+                while ((getline line < "/tmp/archived_counts.txt") > 0) {
+                    split(line, a); archived[a[2]] = a[1]
+                }
+                while ((getline line < "/tmp/unavailable_counts.txt") > 0) {
+                    split(line, u); unavailable[u[2]] = u[1]
+                }
+                close("/tmp/archived_counts.txt")
+                close("/tmp/unavailable_counts.txt")
 
-      #           for (year in archived) years[year] = 1
-      #           for (year in unavailable) years[year] = 1
+                for (year in archived) years[year] = 1
+                for (year in unavailable) years[year] = 1
 
-      #           n = asorti(years, sorted_years)
-      #           for (i = 1; i <= n; i++) {
-      #               year = sorted_years[i]
-      #               arch_count = (year in archived) ? archived[year] : 0
-      #               unav_count = (year in unavailable) ? unavailable[year] : 0
-      #               printf "| %s | %s | %s |\n", year, arch_count, unav_count
-      #           }
-      #       }'
-      #     )
+                n = asorti(years, sorted_years)
+                for (i = 1; i <= n; i++) {
+                    year = sorted_years[i]
+                    arch_count = (year in archived) ? archived[year] : 0
+                    unav_count = (year in unavailable) ? unavailable[year] : 0
+                    printf "| %s | %s | %s |\n", year, arch_count, unav_count
+                }
+            }'
+          )
 
-      #     cat <<EOF > README.md
-      #     # Sri Lanka 🇱🇰 - Gazette Dataset
+          cat <<EOF > README.md
+          # Sri Lanka 🇱🇰 - Gazette Dataset
 
-      #     Last Updated: $TIMESTAMP
+          Last Updated: $TIMESTAMP
 
-      #     **A daily archive of the Sri Lankan Government Gazette.**
+          **A daily archive of the Sri Lankan Government Gazette.**
 
-      #     ---
+          ---
 
-      #     ## 📊 Archive Status Dashboard
+          ## 📊 Archive Status Dashboard
 
-      #     **Total Documents Archived:** $TOTAL_DOCS
-      #     **Unavailable Documents:** $TOTAL_UNAVAILABLE
-      #     **Archived Date Range:** $DATE_RANGE
+          **Total Documents Archived:** $TOTAL_DOCS
+          **Unavailable Documents:** $TOTAL_UNAVAILABLE
+          **Archived Date Range:** $DATE_RANGE
 
-      #     **Summary of Documents Archived:**
+          **Summary of Documents Archived:**
 
-      #     | Year | Archived Docs | Unavailable Docs |
-      #     |------|---------------|-----------------|
-      #     $SUMMARY_TABLE
+          | Year | Archived Docs | Unavailable Docs |
+          |------|---------------|-----------------|
+          $SUMMARY_TABLE
 
-      #     ---
+          ---
 
-      #     ## 📄 Document Usage Instructions
+          ## 📄 Document Usage Instructions
 
-      #     ### View Document Online
+          ### View Document Online
 
-      #     1. Get the `file_path` from the metadata object
-      #     2. Use this URL pattern to view on GitHub:
+          1. Get the `file_path` from the metadata object
+          2. Use this URL pattern to view on GitHub:
 
-      #     ```
-      #     https://github.com/{github-user}/{github-repository}/blob/{github-branch}/{file_path}
-      #     ```
+          ```
+          https://github.com/{github-user}/{github-repository}/blob/{github-branch}/{file_path}
+          ```
 
-      #     **Example:**
-      #     ```
-      #     https://github.com/LDFLK/gztarchiver-storage/blob/main/doc-archive/2026/01/05/2470-06/2470-06_english.pdf
-      #     ```
+          **Example:**
+          ```
+          https://github.com/LDFLK/gztarchiver-storage/blob/main/doc-archive/2026/01/05/2470-06/2470-06_english.pdf
+          ```
 
-      #     ### Download Document
+          ### Download Document
 
-      #     1. Get the `download_url` from the metadata object
-      #     2. Use this URL pattern to download the raw file:
+          1. Get the `download_url` from the metadata object
+          2. Use this URL pattern to download the raw file:
 
-      #     #### Option 1
-      #     ```
-      #     https://raw.githubusercontent.com/{github-user}/{github-repository}/{github-branch}/{file_path}
-      #     ```
+          #### Option 1
+          ```
+          https://raw.githubusercontent.com/{github-user}/{github-repository}/{github-branch}/{file_path}
+          ```
 
-      #     **Example:**
-      #     ```
-      #     https://raw.githubusercontent.com/ldflk/gztarchiver-storage/main/doc-archive/2026/01/05/2470-06/2470-06_english.pdf
-      #     ```
+          **Example:**
+          ```
+          https://raw.githubusercontent.com/ldflk/gztarchiver-storage/main/doc-archive/2026/01/05/2470-06/2470-06_english.pdf
+          ```
 
-      #     #### Option 2
-      #     ```
-      #     https://github.com/{github-user}/{github-repository}/blob/{github-branch}/{file_path}?raw=true
-      #     ```
+          #### Option 2
+          ```
+          https://github.com/{github-user}/{github-repository}/blob/{github-branch}/{file_path}?raw=true
+          ```
 
-      #     **Example:**
-      #     ```
-      #     https://github.com/LDFLK/gztarchiver-storage/blob/main/doc-archive/2026/01/05/2470-06/2470-06_english.pdf?raw=true
-      #     ```
-      #     ---
+          **Example:**
+          ```
+          https://github.com/LDFLK/gztarchiver-storage/blob/main/doc-archive/2026/01/05/2470-06/2470-06_english.pdf?raw=true
+          ```
+          ---
 
-      #     **Processing Schedule:** Daily at 20:00, Sri Lankan Time.
+          **Processing Schedule:** Daily at 20:00, Sri Lankan Time.
 
-      #     ---
-      #     #OpenData #Govgazette #LankaDataFoundation
-      #     EOF
+          ---
+          #OpenData #Govgazette #LankaDataFoundation
+          EOF
 
-      #     git config user.name "gzt-archiver-bot[bot]"
-      #     git config user.email "gzt-archiver-bot[bot]@users.noreply.github.com"
-      #     git add README.md
-      #     git commit -m "📊 Update status dashboard - $TIMESTAMP" || echo "No changes to commit"
-      #     git push origin main
+          git config user.name "gzt-archiver-bot[bot]"
+          git config user.email "gzt-archiver-bot[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "📊 Update status dashboard - $TIMESTAMP" || echo "No changes to commit"
+          git push origin main
