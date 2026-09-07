@@ -1,13 +1,17 @@
 name: Build Global Metadata
 
 permissions:
-  contents: write  
+  contents: write
 
 on:
   push:
     paths:
-      - "doc-archive/**/*_metadata.json"  
-  workflow_dispatch:                        
+      - "doc-archive/**/*_metadata.json"
+  workflow_dispatch:
+
+concurrency:
+  group: build-global-metadata-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -16,6 +20,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -85,8 +91,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add metadata/global_metadata.json
-          git commit -m "Update global metadata" || echo "No changes to commit"
-          git push
+          if ! git diff --cached --quiet; then
+            git commit -m "Update global metadata"
+            git pull --rebase origin "${{ github.ref_name }}"
+            git push origin HEAD:"${{ github.ref_name }}"
+          else
+            echo "No changes to commit"
+          fi
