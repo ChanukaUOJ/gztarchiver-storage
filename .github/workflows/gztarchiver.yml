@@ -17,7 +17,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.TARGET_REPO_PAT }}
-          fetch-depth: 1
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -172,8 +173,8 @@ jobs:
 
           if ! git diff --cached --quiet; then
             git commit -m "$COMMIT_MSG"
-            git pull --rebase origin HEAD
-            git push origin HEAD
+            git pull --rebase origin "${{ github.ref_name }}"
+            git push origin HEAD:"${{ github.ref_name }}"
           else
             echo "No changes to commit"
           fi
@@ -307,8 +308,8 @@ jobs:
           git config user.email "gzt-archiver-bot[bot]@users.noreply.github.com"
           if ! git diff --cached --quiet; then
             git commit -m "📊 Update status dashboard - $TIMESTAMP"
-            git pull --rebase origin HEAD
-            git push origin HEAD
+            git pull --rebase origin "${{ github.ref_name }}"
+            git push origin HEAD:"${{ github.ref_name }}"
           else
             echo "No changes to commit"
           fi
