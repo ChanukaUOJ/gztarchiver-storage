@@ -167,13 +167,14 @@ jobs:
         run: |
           git config user.name "gzt-archiver-bot[bot]"
           git config user.email "gzt-archiver-bot[bot]@users.noreply.github.com"
+          git status
           git add doc-archive
 
           COMMIT_MSG="🔄 Auto-update archive - $(date '+%Y-%m-%d') - $(date '+%H:%M:%S %Z')"
 
           if ! git diff --cached --quiet; then
             git commit -m "$COMMIT_MSG"
-            git pull --rebase origin "${{ github.ref_name }}"
+            git pull --rebase --autostash origin "${{ github.ref_name }}"
             git push origin HEAD:"${{ github.ref_name }}"
           else
             echo "No changes to commit"
