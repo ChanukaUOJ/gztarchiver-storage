@@ -26,7 +26,7 @@ jobs:
           python-version: "3.10"
 
       - name: Install archiver package
-        run: pip install --force-reinstall --no-cache-dir git+https://github.com/ChanukaUOJ/gztarchiver.git@feat/source-v2
+        run: pip install --force-reinstall --no-cache-dir https://github.com/LDFLK/gztarchiver.git
 
       - name: Create config.yaml from secret
         run: |
