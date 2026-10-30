@@ -1,13 +1,13 @@
 name: Build Global Metadata
 
 permissions:
-  contents: write  
+  contents: write
 
 on:
   push:
     paths:
-      - "doc-archive/**/*_metadata.json"  
-  workflow_dispatch:                        
+      - "doc-archive/**/*_metadata.json"
+  workflow_dispatch:
 
 jobs:
   build:
@@ -64,7 +64,7 @@ jobs:
           for out_file in OUT_DIR.iterdir():
               if YEAR_FILE.match(out_file.name) and out_file.name[:4] not in metadata_by_year:
                   out_file.unlink()
-                  print(f"🗑️ Removed stale {out_file.name}")
+                  print(f"Removed stale {out_file.name}")
           EOF
 
       - name: Commit and push
@@ -73,7 +73,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          # Only the year files; leave global_metadata.json untouched
           git add -A -- 'metadata/[0-9][0-9][0-9][0-9]_metadata.json'
           git commit -m "Update yearly metadata" || echo "No changes to commit"
           git push
